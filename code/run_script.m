@@ -30,12 +30,14 @@ dirName(ismember(dirName,{'.','..'})) = [];
 numGest    = length(dirName);
 
 for gestIdx = 1 : numGest
-    load_data(fullfile(dataDir, dirName(gestIdx)));
-    train_data(i).class=i;
-    train_data(i).name=nameC{i};
-    train_data(i).accel=[accel_x'; accel_y'; accel_z'];
-    train_data(i).gyro=[gyro_x'; gyro_y'; gyro_z'];
-    train_data(i).imu=[train_data(i).accel; train_data(i).gyro];
+    dataIdx = input('Please choose one dataset: ');
+    load(fullfile(dataDir, dirName(gestIdx), ['imuRaw', num2str(dataIdx, '02%d')]));
+%     load_data(fullfile());
+%     train_data(i).class=i;
+%     train_data(i).name=nameC{i};
+%     train_data(i).accel=[accel_x'; accel_y'; accel_z'];
+%     train_data(i).gyro=[gyro_x'; gyro_y'; gyro_z'];
+%     train_data(i).imu=[train_data(i).accel; train_data(i).gyro];
 end
 
 
