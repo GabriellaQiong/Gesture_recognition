@@ -8,18 +8,19 @@ if size(accRaw, 1) == 6
     accRaw = accRaw(1 : 3, :);
 end
 
+if nargin < 2
+    bias = [0, 0, 0]';
+end
+
 if size(bias, 1) == 6
     bias = bias(1 : 3, :);
 end
 
 % Parameters
-Vref        = 3300;
-sensitivity = 300;                         % Higher --> more accurate
-scale       = Vref / 1023 / sensitivity;   % Wrong in reference datasheet
 datNum      = size(accRaw, 2);
 
 % Compute acceleration
-accNew = scale .* bsxfun(@minus, accRaw, bias);
+accNew = bsxfun(@minus, accRaw, bias);
 accNew = bsxfun(@times, accNew, [-1; -1; 1]);
 accNew = bsxfun(@rdivide, accNew, sqrt(sum(accNew .* accNew, 1)));
 

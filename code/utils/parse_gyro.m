@@ -8,18 +8,19 @@ if size(gyroRaw, 1) == 6
     gyroRaw = gyroRaw(4 : 6, :);
 end
 
+if nargin < 2
+    bias = [0, 0, 0]';
+end
+
 if size(bias, 1) == 6
     bias = bias(4 : 6, :);
 end
 
 % Parameters
-Vref        = 3300;
-sensitivity = 3.3;
-scale       = Vref / 1023 / sensitivity * pi / 180;
 datNum      = size(gyroRaw, 2);
 
 % Compute acceleration
-gyroNew   = scale .* bsxfun(@minus, gyroRaw, bias);
+gyroNew   = bsxfun(@minus, gyroRaw, bias);
 factorMat = [0 1 0; 0 0 1; - 1 0 0];
 gyroNew   = factorMat * gyroNew;
 
