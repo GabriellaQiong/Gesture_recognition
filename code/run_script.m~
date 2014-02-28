@@ -22,31 +22,39 @@ end
 addpath(genpath('../code'));
 
 %% Load data
-train_data = struct;
-dirData    = dir(dataDir);
-isDir      = [dirData(:).isdir];
-dirName    = {dirData(isDir).name}';
-dirName(ismember(dirName,{'.','..'})) = [];
-numGest    = length(dirName);
-
-for gestIdx = 1 : numGest
-    load_data(fullfile(dataDir, dirName(gestIdx)));
-%     train_data(i).class=i;
-%     train_data(i).name=nameC{i};
-%     train_data(i).accel=[accel_x'; accel_y'; accel_z'];
-%     train_data(i).gyro=[gyro_x'; gyro_y'; gyro_z'];
-%     train_data(i).imu=[train_data(i).accel; train_data(i).gyro];
-end
-
-
-dataIdx = input('Please choose one dataset: ');
-load(fullfile(imuDir, ['imuRaw', num2str(dataIdx)]));
-tsImu   = ts;
-load(fullfile(viconDir, ['viconRot', num2str(dataIdx)]));
-tsVicon = ts;
-if dataIdx < 3 || dataIdx == 13
-    load(fullfile(camDir, ['cam', num2str(dataIdx)]));
-    tsCam   = ts;
+if ~exist('train_data', 'file')
+    dirGest    = dir(dataDir);
+    isDir      = [dirGest(:).isdir];
+    dirName    = {dirGest(isDir).name}';
+    dirName(ismember(dirName, {'.','..'})) = [];
+    numGest    = length(dirName);
+    trainData  = cell(numGest, 1);
+    
+    for gestIdx = 1 : numGest
+        gestStr    = fullfile(dataDir, char(dirName(gestIdx)));
+        dirData    = dir(gestStr);
+        dataName   = {dirData(:).name}';
+        dataName(ismember(dataName, {'.','..'})) = [];
+        numData    = length(dataName);
+        trainData{gestIdx}.class = gestIdx;
+        trainData{gestIdx}.name  = dirName(gestIdx);
+        
+        for dataIdx = 1 : numData
+            dataStr = char(dataName(dataIdx));
+            tmp = load(fullfile(gestStr, dataStr));
+            trainData{gestIdx}.data{dataIdx}.imu = tmp(:, 2 : 7)';
+            trainData{gestIdx}.data{dataIdx}.t   = tmp(:, 1)' - tmp(1, 1);
+        end
+    end
+    save(fullfile(dataDir, 'train_data.mat'), 'trainData');
+else
+    load(fullfile(dataDir, 'train_data.mat'));
 end
 
 %% Train Hidden Marcov Model
+% Filter the data
+
+
+% Generative HMM model
+
+%
