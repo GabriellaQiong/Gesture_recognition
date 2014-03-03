@@ -1,4 +1,4 @@
-function P = set_prior(M, LR)
+function [P, E]  = set_prior(M, N, LR)
 % SET_PRIOR() sets the prior for the transition matrix
 % Written by Qiong Wang at University of Pennsylvania
 % 02/29/2014
@@ -19,4 +19,8 @@ for i = M - (LR-2) : M
     for j = 1 : M - i + 1
         P(i, i + (j - 1)) = 1/(M - i + 1);
     end
+end
+
+E = (0.1 * rand(N, M) + ones(N, M)) / N;
+E = cdiv(E, csum(E));
 end

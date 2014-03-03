@@ -96,19 +96,19 @@ for cycle = 1 : maxIter
         %end
     end;
 
-    scale      = zeros(T(n),1);
+    scale       = zeros(T(n),1);
     alpha(1, :) = Pi(:)'.*B(1, :);
-    scale(1)   = sum(alpha(1, :));
+    scale(1)    = sum(alpha(1, :));
     alpha(1, :) = alpha(1, :)/scale(1);
     for i=2:T(n)
       alpha(i, :) = (alpha(i - 1, :)*P).*B(i, :);
-      scale(i)   = sum(alpha(i, :));
+      scale(i)    = sum(alpha(i, :));
       alpha(i, :) = alpha(i, :)/scale(i);
     end;
 
     beta(T(n), :) = ones(1, M)/scale(T(n));
-    for i= T(n) - 1 : -1 : 1
-      beta(i, :)=(beta(i + 1, :).*B(i + 1, :))*(P') / scale(i); 
+    for i = T(n) - 1 : -1 : 1
+      beta(i, :) = (beta(i + 1, :).*B(i + 1, :))*(P') / scale(i); 
     end;
 
     gamma=(alpha.*beta)+epsi;
@@ -159,6 +159,6 @@ for cycle = 1 : maxIter
   if (cycle<=2)    likbase=lik;
   elseif (lik<(oldlik - 1e-6))     fprintf('vionum_binstion');
   elseif ((lik-likbase)<(1 + thresh)*(oldlik-likbase)||~isfinite(lik)) 
-    fprintf('\nend\n');    return;
+    fprintf('\nDone\n');    return;
   end;
 end

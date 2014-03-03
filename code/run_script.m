@@ -15,7 +15,7 @@ test    = true;                      % Whether to test
 %% Paths
 scriptDir = fileparts(mfilename('fullpath'));
 trainDir  = '/home/qiong/ese650_data/project3/train';
-testDir   = '/home/qiong/ese650_data/project3/train';
+testDir   = '/home/qiong/ese650_data/project3/test';
 outputDir = fullfile(scriptDir, '../results');
 if ~exist(outputDir, 'dir')
     mkdir(outputDir); 
@@ -24,12 +24,12 @@ addpath(genpath('../code'));
 
 %% Load data
 trainFile = fullfile(scriptDir, '../data', 'train_data.mat');
-trainData = load_data(trainDir, trainFile);
+trainData = load_data(trainDir, trainFile, 'train');
 
 %% Parameters
 D         = 3;                         % Number of dimensions to use: X, Y, Z
 M         = numel(trainData);          % Number of output symbols
-N         = 10;                         % Number of states
+N         = 5;                         % Number of states
 LR        = 2;                         % Degree of play in the left-to-right HMM transition matrix 
 cycle     = 70;
 thresh    = 1e-5;
@@ -37,7 +37,7 @@ thresh    = 1e-5;
 %% Train Hidden Marcov Model
 % Initialize
 centroids = zeros(N, D, M);
-E         = zeros(N, M, M);
+E         = zeros(M, N, M);
 P         = zeros(M, M, M);
 Pi        = zeros(1, M, M);
 ATrain    = cell(M, 1);
@@ -49,10 +49,11 @@ for i = 1 : M
     ATrain{i}               = get_clusters(trainData{i}.data, centroids(:, :, i), D);
 
     % Set priors:
-    prior = set_prior(M, LR);
+    [priorP, priorE] = set_prior(M, N, LR);
     
     % Train the model:
-    [E(:, :, i), P(:, :, i), Pi(:, :, i), LL{i}] = hmm_train(ATrain{i}, prior, 1:N, M, cycle, thresh);
+%     [E(:, :, i), P(:, :, i), Pi(:, :, i), LL{i}] = hmm_train(ATrain{i}, prior, 1:N, M, cycle, thresh);
+     [P(:, :, i), E(:, :, i)] = hmmtrain(ATrain{i}, priorP, priorE');
 end
 
 %% Testing
@@ -62,7 +63,7 @@ end
 
 % Initialize
 testFile = fullfile(scriptDir, '../data', 'test_data.mat');
-testData = load_data(testDir, testFile);
+testData = load_data(testDir, testFile, 'test');
 numTest  = numel(testData);
 ATest    = cell(numTest, 1);
 
@@ -72,7 +73,9 @@ class      = 'Not Found';
 for j = 1 : numTest
     for i = 1 : M
         ATest{j} = get_clusters(testData{j}.data, centroids(:, :, i), D);
-        tmp      = find_gesture(E(:, :, i), P(:, :, i), Pi(:, :, i), ATest{j}, ATrain{i}, trainData{i}.name);
+%         tmp      = find_gesture(E(:, :, i), P(:, :, i), Pi(:, :, i), ATest{j}, ATrain{i}, trainData{i}.name);
+        [~, tmp] = hmmdecode(cell2mat(ATest{j}), P(:, :, i), E(:, :, i));
+        tmp = tmp + log(realmin)
         if tmp > percentage
             percentage = tmp;
             class = trainData{i}.name;

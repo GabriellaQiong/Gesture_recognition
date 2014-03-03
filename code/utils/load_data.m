@@ -1,7 +1,9 @@
-function trainData = load_data(dataDir,dataFile)
+function trainData = load_data(dataDir, dataFile, str)
 % LOAD_DATA() initially loads the data
 % Written by Qiong Wang at University of Pennsylvania
 % 02/28/2014
+
+type = [str, 'Data'];
 
 if ~exist(dataFile, 'file')
     dirGest    = dir(dataDir);
@@ -25,22 +27,21 @@ if ~exist(dataFile, 'file')
             trainData{gestIdx}.data{dataIdx} = tmp(:, 2 : 7)';
         end
         
-        lengArr = cell2mat(cellfun(@length, trainData{gestIdx}.data, 'UniformOutput', false));
-        dataLeng = max(lengArr);
+%         lengArr = cell2mat(cellfun(@length, trainData{gestIdx}.data, 'UniformOutput', false));
+%         dataLeng = max(lengArr);
         
-        trainData{gestIdx}.data = [];%sparse(dataLeng, numData, 6);
+        trainData{gestIdx}.data = {};%sparse(dataLeng, numData, 6);
         for dataIdx = 1 : numData
             dataStr = char(dataName(dataIdx));
             tmp = load(fullfile(gestStr, dataStr));
-            for dimIdx = 1 : 6
-                trainData{gestIdx}.data(:, dataIdx, dimIdx) = ...%tmp(:, dimIdx + 1);
-                interp1(1 : length(tmp), 100 * tmp(:, dimIdx + 1), 1 : dataLeng, 'spline')';
+%             for dimIdx = 1 : 6
+                trainData{gestIdx}.data{dataIdx} = tmp(:, 2 : 7);
+%                 interp1(1 : length(tmp), 100 * tmp(:, dimIdx + 1), 1 : dataLeng, 'spline')';
                 
-            end
+%             end
         end
-        
     end
     save(dataFile, 'trainData');
-elseif ~exist('trainData', 'var')
+elseif ~exist(type, 'var')
     load(dataFile);
 end
