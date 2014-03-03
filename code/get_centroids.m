@@ -14,6 +14,6 @@ for n = 1:size(data,1)
 end
 
 % Using k-means to make data discrete
-[centroids, ~, ~] = kmeans(mean,K);
+[centroids, ~, ~] = kmeans(mean, K);
 K = size(centroids,1);
 end

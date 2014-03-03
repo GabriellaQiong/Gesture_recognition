@@ -1,9 +1,9 @@
-function trainData = load_data(dataDir, trainDir)
+function trainData = load_data(dataDir,dataFile)
 % LOAD_DATA() initially loads the data
 % Written by Qiong Wang at University of Pennsylvania
 % 02/28/2014
 
-if ~exist('trainData', 'file')
+if ~exist(dataFile, 'file')
     dirGest    = dir(dataDir);
     isDir      = [dirGest(:).isdir];
     dirName    = {dirGest(isDir).name}';
@@ -17,17 +17,29 @@ if ~exist('trainData', 'file')
         dataName   = {dirData(:).name}';
         dataName(ismember(dataName, {'.','..'})) = [];
         numData    = length(dataName);
-        trainData{gestIdx}.class = gestIdx;
-        trainData{gestIdx}.name  = dirName(gestIdx);
+        trainData{gestIdx}.name  = char(dirName(gestIdx));
         
         for dataIdx = 1 : numData
             dataStr = char(dataName(dataIdx));
             tmp = load(fullfile(gestStr, dataStr));
-            trainData{gestIdx}.data{dataIdx}.imu = tmp(:, 2 : 7)';
-            trainData{gestIdx}.data{dataIdx}.t   = tmp(:, 1)' - tmp(1, 1);
+            trainData{gestIdx}.data{dataIdx} = tmp(:, 2 : 7)';
         end
+        
+        lengArr = cell2mat(cellfun(@length, trainData{gestIdx}.data, 'UniformOutput', false));
+        dataLeng = max(lengArr);
+        
+        trainData{gestIdx}.data = [];
+        for dataIdx = 1 : numData
+            dataStr = char(dataName(dataIdx));
+            tmp = load(fullfile(gestStr, dataStr));
+            for dimIdx = 1 : 6
+                trainData{gestIdx}.data(:, dataIdx, dimIdx) = ...
+                interp1(1 : length(tmp), tmp(:, dimIdx + 1), 1 : dataLeng, 'spline')';
+            end
+        end
+        
     end
-    save(trainDir, 'trainData');
-else
-    load(trainDir);
+    save(dataFile, 'trainData');
+elseif ~exist('trainData', 'var')
+    load(dataFile);
 end

@@ -27,13 +27,13 @@ for t = 1 : T - 1      %recursion
         for i = 1 : n
             z = z + A(i,j) * m(t,i);
         end
-        m(t+1,j) = z * B(j,O(t+1));
+        m(t + 1, j) = z * B(j, O(t + 1));
     end
 end
 
-prob = 0;
+prob = realmin;
 for i = 1 : n         %termination
-    prob = prob + m(T,i);        
+    prob = prob + m(T, i);        
 end
 prob = log(prob);
 end

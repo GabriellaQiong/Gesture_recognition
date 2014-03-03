@@ -10,9 +10,7 @@ for n = 1:size(data,1)
     for i = 1:size(data,2)
         temp = zeros(K,1);
         for j = 1:K
-%             temp(j) = sqrt( (centroids(j,1) - data(n,i,1))^2+...
-%                 (centroids(j,2) - data(n,i,2))^2+(centroids(j,3) - data(n,i,3))^2);
-            temp(j) = sqrt(sum((centroids(j, :) - data(n, i, :)).^2, 2));
+           temp(j) = sqrt(sum((centroids(j, 1 : D) - squeeze(data(n, i, 1 : D))').^2, 2));
         end
         [~, I] = min(temp);
         XClustered{i}(n,1) = I(1);
