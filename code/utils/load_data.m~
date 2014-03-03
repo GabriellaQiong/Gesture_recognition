@@ -28,13 +28,13 @@ if ~exist(dataFile, 'file')
         lengArr = cell2mat(cellfun(@length, trainData{gestIdx}.data, 'UniformOutput', false));
         dataLeng = max(lengArr);
         
-        trainData{gestIdx}.data = [];%sparse(dataLeng, numData, 6);
+        trainData{gestIdx}.data = sparse(dataLeng, numData, 6);
         for dataIdx = 1 : numData
             dataStr = char(dataName(dataIdx));
             tmp = load(fullfile(gestStr, dataStr));
             for dimIdx = 1 : 6
                 trainData{gestIdx}.data(:, dataIdx, dimIdx) = ...%tmp(:, dimIdx + 1);
-                interp1(1 : length(tmp), 100 * tmp(:, dimIdx + 1), 1 : dataLeng, 'spline')';
+                interp1(1 : length(tmp), tmp(:, dimIdx + 1), 1 : dataLeng, 'spline')';
                 
             end
         end

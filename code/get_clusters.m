@@ -14,5 +14,6 @@ for n = 1:size(data,1)
         end
         [~, I] = min(temp);
         XClustered{i}(n,1) = I(1);
+%         XClustered{i} = kmeans(squeeze(data(:, i, :)), K); 
     end
 end

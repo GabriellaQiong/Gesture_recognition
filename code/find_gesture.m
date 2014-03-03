@@ -25,6 +25,9 @@ count = 0;
 predictProb = zeros(length(ATest),1);
 for j = 1 : length(ATest)
 	predictProb(j, 1) = predict_hmm(ATest{j}, P, E', Pi);
+    if abs(predictProb(j, 1))  < 2
+        predictProb(j, 1) = predictProb(j, 1) + log(realmin);
+    end
 	if (predictProb(j, 1) > adaptiveThresh)
 		count = count + 1;
 		fprintf('Log likelihood: %f > %f (threshold) -- FOUND %s GESTURE!\n',predictProb(j,1),adaptiveThresh,class);

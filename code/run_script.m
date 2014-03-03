@@ -15,7 +15,7 @@ test    = true;                      % Whether to test
 %% Paths
 scriptDir = fileparts(mfilename('fullpath'));
 trainDir  = '/home/qiong/ese650_data/project3/train';
-testDir   = '/home/qiong/ese650_data/project3/test';
+testDir   = '/home/qiong/ese650_data/project3/train';
 outputDir = fullfile(scriptDir, '../results');
 if ~exist(outputDir, 'dir')
     mkdir(outputDir); 
@@ -29,9 +29,9 @@ trainData = load_data(trainDir, trainFile);
 %% Parameters
 D         = 3;                         % Number of dimensions to use: X, Y, Z
 M         = numel(trainData);          % Number of output symbols
-N         = 12;                        % Number of states
-LR        = 5;                         % Degree of play in the left-to-right HMM transition matrix 
-cycle     = 50;
+N         = 10;                         % Number of states
+LR        = 2;                         % Degree of play in the left-to-right HMM transition matrix 
+cycle     = 70;
 thresh    = 1e-5;
 
 %% Train Hidden Marcov Model
@@ -43,7 +43,7 @@ Pi        = zeros(1, M, M);
 ATrain    = cell(M, 1);
 LL        = cell(M, 1);
 
-for i = 1 : 2% M
+for i = 1 : M
     % Discretize the states
     [centroids(:, :, i), N] = get_centroids(trainData{i}.data, N, D);
     ATrain{i}               = get_clusters(trainData{i}.data, centroids(:, :, i), D);
@@ -69,8 +69,8 @@ ATest    = cell(numTest, 1);
 % Predict the right class with the highest recognition precision
 percentage = 0;
 class      = 'Not Found';
-for j = 1 : 2 %numTest
-    for i = 1 : 2 %M
+for j = 1 : numTest
+    for i = 1 : M
         ATest{j} = get_clusters(testData{j}.data, centroids(:, :, i), D);
         tmp      = find_gesture(E(:, :, i), P(:, :, i), Pi(:, :, i), ATest{j}, ATrain{i}, trainData{i}.name);
         if tmp > percentage
@@ -80,7 +80,3 @@ for j = 1 : 2 %numTest
     end
     fprintf('\n Test Data %s is found to be %s\n', testData{j}.name, class);
 end
-
-
-
-

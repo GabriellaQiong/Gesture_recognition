@@ -3,7 +3,7 @@ function [centroids, K] = get_centroids(data, K, D)
 % Written by Qiong Wang at University of Pennsylvania
 % 02/29/2014
 
-mean = zeros(size(data,1), D);
+mean = zeros(size(data, 1), D);
 for n = 1:size(data,1)
     for i = 1:size(data,2)
         for j = 1:D
@@ -12,8 +12,16 @@ for n = 1:size(data,1)
     end
     mean(n,:) = mean(n,:)./size(data,2);
 end
+% 
+% mu = [];
+% for j = 1 : D
+%     temp = data(:, :, j); 
+%     mu = [mu temp(:)];
+% end
+% 
 
 % Using k-means to make data discrete
-[centroids, ~, ~] = kmeans(mean, K);
-K = size(centroids,1);
+% [centroids, ~, ~] = kmeans(mu, K);
+% K = size(centroids,1);
+[~, centroids] = kmeans(mean, K);
 end
