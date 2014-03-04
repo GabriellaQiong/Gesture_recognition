@@ -12,7 +12,7 @@ function [centroids, K] = get_centroids(data, K, D)
 %     end
 %     mu(n,:) = mu(n,:)./size(data,2);
 % end
-% 
+
 % mu = [];
 % for j = 1 : D
 %     temp = data(:, :, j); 
@@ -29,4 +29,16 @@ end
 % [centroids, ~, ~] = kmeans(mu, K);
 % K = size(centroids,1);
 [~, centroids] = kmeans(mu, K);
+
+% numData = numel(data);
+% mu      = [];
+% for i = 1 : numData
+%     mu = [mu; data{i}(:, 1 : D)];
+% end
+% 
+% centroids = zeros(K, D);
+% for j = 1 : D
+%     [~, centroids(:, D)] = hist(mu(:, j), K);
+% end
+
 end

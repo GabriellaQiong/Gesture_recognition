@@ -16,10 +16,13 @@ for j = 1 : length(ATrain)
 	sumProb = sumProb + prob;
 end
 adaptiveThresh = 2 * sumProb / length(ATrain);
-    
-fprintf('\n\n********************************************************************\n');
-fprintf('Testing %i sequences for a log likelihood greater than %f\n',length(ATest), adaptiveThresh);
-fprintf('********************************************************************\n\n');
+if adaptiveThresh < log(realmin)
+    adaptiveThresh = log(realmin);
+end
+
+% fprintf('\n\n********************************************************************\n');
+% fprintf('Testing %i sequences for a log likelihood greater than %f\n',length(ATest), adaptiveThresh);
+% fprintf('********************************************************************\n\n');
 
 count = 0;
 predictProb = zeros(length(ATest),1);
@@ -28,11 +31,11 @@ for j = 1 : length(ATest)
     if abs(predictProb(j, 1))  < 2
         predictProb(j, 1) = predictProb(j, 1) + log(realmin);
     end
-	if (predictProb(j, 1) > adaptiveThresh)
+	if (predictProb(j, 1) >= adaptiveThresh)
 		count = count + 1;
-		fprintf('Log likelihood: %f > %f (threshold) -- FOUND %s GESTURE!\n',predictProb(j,1),adaptiveThresh,class);
+% 		fprintf('Log likelihood: %f > %f (threshold) -- FOUND %s GESTURE!\n',predictProb(j,1),adaptiveThresh,class);
 	else
-		fprintf('Log likelihood: %f < %f (threshold) -- NO %s GESTURE.\n',predictProb(j,1),adaptiveThresh,class);
+% 		fprintf('Log likelihood: %f < %f (threshold) -- NO %s GESTURE.\n',predictProb(j,1),adaptiveThresh,class);
 	end
 end
 percentage = 100 * count / length(ATest);

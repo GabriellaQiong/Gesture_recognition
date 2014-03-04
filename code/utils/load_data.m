@@ -41,7 +41,11 @@ if ~exist(dataFile, 'file')
 %             end
         end
     end
-    save(dataFile, 'trainData');
+    testData = trainData;
+    save(dataFile, type);
 elseif ~exist(type, 'var')
     load(dataFile);
+    if exist('testData', 'var')
+        trainData = testData;
+    end
 end

@@ -24,10 +24,12 @@ epsi = 1e-10;
 
 % number of sequences
 N = size(X,1);
+% N = numel(X);
 
 % length of each sequence
 T = ones(1,N);
 for n = 1 : N,
+%   T(n) = size(X{n},2);
   T(n) = size(X{n},1);
 end;
 
@@ -39,7 +41,7 @@ if nargin<4,   M      = 2;    end;
 
 fprintf('\n********************************************************************\n');
 fprintf('Training %i sequences of maximum length %i from an alphabet of size %i\n',N,TMAX,numBins);
-fprintf('HMM with %i hidden states\n',M);
+fprintf('HMM with %i hidden states\n', M);
 fprintf('********************************************************************\n');
 
 E = (0.1*rand(numBins,M)+ones(numBins,M))/numBins;
@@ -64,9 +66,7 @@ lik = 0;
 
 for cycle = 1 : maxIter
 
-  %%%% FORWARD-BACKWARD
-  
-
+  % Forward - backward
   Gammainit = zeros(1,M);
   Gammasum  = zeros(1,M);
   Gammaksum = zeros(numBins,M);
@@ -84,23 +84,20 @@ for cycle = 1 : maxIter
     Xcurrent = X{n};
     
     for i = 1 : T(n)
-        %for j=1:D
-          % find the letter in the alphabet
-          % m = findstr(alphabet,Xcurrent(i));
-            m = find(bins==Xcurrent(i));
-            if (m == 0)
-              fprintf('Error: Symbol not found\n');  
-              return;
-            end
-            B(i, :) = E(m, :);
-        %end
+        m = find(bins==Xcurrent(i));
+        if (m == 0)
+            fprintf('Error: Symbol not found\n');
+            return;
+        end
+        B(i, :) = E(m, :);
     end;
 
     scale       = zeros(T(n),1);
     alpha(1, :) = Pi(:)'.*B(1, :);
     scale(1)    = sum(alpha(1, :));
     alpha(1, :) = alpha(1, :)/scale(1);
-    for i=2:T(n)
+    
+    for i = 2 : T(n)
       alpha(i, :) = (alpha(i - 1, :)*P).*B(i, :);
       scale(i)    = sum(alpha(i, :));
       alpha(i, :) = alpha(i, :)/scale(i);
@@ -108,34 +105,33 @@ for cycle = 1 : maxIter
 
     beta(T(n), :) = ones(1, M)/scale(T(n));
     for i = T(n) - 1 : -1 : 1
-      beta(i, :) = (beta(i + 1, :).*B(i + 1, :))*(P') / scale(i); 
+        beta(i, :) = (beta(i + 1, :).*B(i + 1, :))*(P') / scale(i); 
     end;
 
-    gamma=(alpha.*beta)+epsi;
-    gamma=rdiv(gamma,rsum(gamma));
+    gamma = (alpha.*beta) + epsi;
+    gamma = rdiv(gamma, rsum(gamma));
 
-    gammasum=sum(gamma);
+    gammasum = sum(gamma);
 
-    for i = 1:T(n)
+    for i = 1 : T(n)
       % find the letter in the alphabet
-      % m = findstr(alphabet,Xcurrent(i));
-      m = find(bins==Xcurrent(i));
-      gammaksum(m,:) = gammaksum(m,:) + gamma(i,:);
+      m = find(bins == Xcurrent(i));
+        gammaksum(m,:) = gammaksum(m,:) + gamma(i,:);
     end;
 
-    for i=1:T(n)-1
-      t=P.*( alpha(i,:)' * (beta(i+1,:).*B(i+1,:)));
-      sxi=sxi+t/sum(t(:));
+    for i = 1 : T(n) - 1
+      t = P.* (alpha(i,:)' * (beta(i + 1,:).*B(i + 1,:)));
+      sxi = sxi + t/sum(t(:));
     end;
 
-    Gammainit=Gammainit+gamma(1,:);
-    Gammasum=Gammasum+gammasum;
+    Gammainit = Gammainit + gamma(1, :);
+    Gammasum  = Gammasum  + gammasum;
     Gammaksum = Gammaksum + gammaksum;
 
-    for i=1:T(n)-1
-      Scale(i,:) = Scale(i,:) + log(scale(i,:));
+    for i = 1 : T(n) - 1
+      Scale(i, :)  = Scale(i,:) + log(scale(i,:));
     end;
-    Scale(T(n),:) = Scale(T(n),:) + log(scale(T(n),:));
+    Scale(T(n), :) = Scale(T(n),:) + log(scale(T(n),:));
 
   end;
   
@@ -157,7 +153,7 @@ for cycle = 1 : maxIter
   LL = [LL lik];
   fprintf('\ncycle %i log likelihood = %f ',cycle,lik);  
   if (cycle<=2)    likbase=lik;
-  elseif (lik<(oldlik - 1e-6))     fprintf('vionum_binstion');
+  elseif (lik<(oldlik - 1e-6))     fprintf('Not change so much');
   elseif ((lik-likbase)<(1 + thresh)*(oldlik-likbase)||~isfinite(lik)) 
     fprintf('\nDone\n');    return;
   end;
